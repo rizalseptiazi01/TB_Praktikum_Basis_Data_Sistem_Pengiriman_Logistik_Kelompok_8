@@ -1,12 +1,11 @@
 <?php
 
-// === LOGIKA PHP: TAMBAH, UPDATE, & HAPUS KURIR ===
+// TAMBAH, UPDATE, & HAPUS KURIR 
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($pdo) {
         try {
             if ($_POST['action'] === 'add') {
-                // Menyiapkan query INSERT, rating otomatis diberi nilai awal 5.0 untuk kurir baru
                 $stmt = $pdo->prepare("INSERT INTO kurir (id_kurir, nama_kurir, no_telp, area_operasi, kendaraan, status_kurir, rating) 
                                        VALUES (:id_kurir, :nama_kurir, :no_telp, :area_operasi, :kendaraan, :status_kurir, 5.0)");
                 
@@ -223,27 +222,16 @@ function filterKurir() {
   
   document.querySelectorAll('#kurirTable tbody tr').forEach(tr => {
     const text = tr.innerText.toLowerCase();
-    
-    // Ambil teks status kurir secara spesifik dari kolom ke-8 (index ke-7) atau ambil dari teks badgenya
-    // Kita bersihkan spasi dan ubah ke lowercase agar pencocokannya akurat
     const statusKolom = tr.querySelector('td:nth-child(8)').innerText.toLowerCase().trim();
     const kendaraanKolom = tr.querySelector('td:nth-child(6)').innerText.toLowerCase().trim();
-    
-    // Cocokkan pencarian teks utama
     const matchQuery = text.includes(q);
-    
-    // Cocokkan status SECARA UTUH (Exact Match), bukan pakai .includes() lagi
     const matchStatus = (!s || statusKolom === s);
-    
-    // Cocokkan kendaraan
     const matchKendaraan = (!kend || kendaraanKolom.includes(kend));
-    
-    // Tampilkan jika semua kondisi terpenuhi
     tr.style.display = (matchQuery && matchStatus && matchKendaraan) ? '' : 'none';
   });
 }
 
-// Fungsi JavaScript: Mengatur ulang Modal menjadi Mode Tambah Baru
+// Fungsi JavaScript untuk Mengatur ulang Modal menjadi Mode Tambah Baru
 function openTambahKurirModal() {
   document.getElementById('modalTitleKurir').innerText = "🚚 Tambah Kurir Baru";
   document.getElementById('formActionKurir').value = "add";
@@ -252,14 +240,14 @@ function openTambahKurirModal() {
   openModal('modalKurir');
 }
 
-// Fungsi JavaScript Utama: Mengisi data lama kurir ke form modal input saat mode Edit
+// Fungsi JavaScript Utama untuk Mengisi data lama kurir ke form modal input saat mode Edit
 function bukaEditKurir(data) {
   document.getElementById('modalTitleKurir').innerText = "✏️ Edit Data Kurir";
   document.getElementById('formActionKurir').value = "update";
   
   // Memasukkan data objek ke masing-masing input modal berdasarkan ID komponennya
   document.getElementById('kr_id').value = data.id_kurir;
-  document.getElementById('kr_id').readOnly = true; // Kunci ID Kurir agar tidak dimodifikasi
+  document.getElementById('kr_id').readOnly = true; 
   document.getElementById('kr_nama').value = data.nama_kurir;
   document.getElementById('kr_telp').value = data.no_telp;
   document.getElementById('kr_area').value = data.area_operasi;
