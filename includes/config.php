@@ -18,7 +18,7 @@ try {
         ]
     );
 } catch (PDOException $e) {
-    // Untuk demo tampilan, kita tetap lanjutkan tanpa koneksi
+    // Untuk demo tampilan
     $pdo = null;
     $db_error = $e->getMessage();
 }
