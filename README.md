@@ -1,7 +1,7 @@
 # 📦 LogiTrackTG - Sistem Pengiriman Logistik (Kelompok 8)
-Tugas Besar Praktikum Basis Data - Institut Teknologi Garut / Jurusan Kamu] 2026
+Tugas Besar Praktikum Basis Data - Institut Teknologi Garut / Teknik Informatika A] 2026
 
-Sistem informasi berbasis web dinamis (PHP & MySQL) untuk mempermudah manajemen manifest pengiriman barang, pendataan customer, pelacakan armada kurir, serta rekapitulasi pendapatan logistik secara real-time.
+Sistem informasi berbasis web dinamis untuk mempermudah manajemen manifest pengiriman barang, pendataan customer, pelacakan kurir, serta rekapitulasi pendapatan logistik secara real-time.
 
 ---
 
@@ -19,7 +19,7 @@ Sistem informasi berbasis web dinamis (PHP & MySQL) untuk mempermudah manajemen 
 
 ## 🛠️ Teknologi yang Digunakan
 * **Backend:** PHP 8.x (PDO MySQL Object Configuration)
-* **Frontend:** HTML5, CSS3 Custom Variables (Custom Layout Framework)
+* **Frontend:** HTML5, CSS3, JavaScript
 * **Database:** MySQL
 
 ## 🗃️ Cara Instalasi di Lokal/Laptop
