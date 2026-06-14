@@ -1,4 +1,7 @@
 <?php
+// 1. QUERY REAL-TIME UNTUK MENGHITUNG DATA PENGIRIMAN
+$total_realtime_pengiriman = $pdo ? $pdo->query("SELECT COUNT(*) FROM pengiriman")->fetchColumn() : 0;
+
 $nav_items = [
     ['page' => 'dashboard',         'icon' => '📊', 'label' => 'Dashboard'],
     ['section' => 'Manajemen Data'],
@@ -14,12 +17,14 @@ $nav_items = [
 ];
 ?>
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-brand" style="display: flex; align-items: center; padding: 20px 15px; gap: 10px;">
-    <a href="?page=dashboard" class="brand-logo" style="display: flex; align-items: center; gap: 10px; text-decoration: none; flex: 1;">
-      <img src="assets/img/Logo_Logistik.png" alt="Logo" style="width: 90px; height: 90px; object-fit: contain; flex-shrink: 0;">
+  <div class="sidebar-brand" style="display: flex; align-items: center; padding: 20px 15px; gap: 12px;">
+    <a href="?page=dashboard" class="brand-logo" style="display: flex; align-items: center; gap: 12px; text-decoration: none; flex: 1;">
+      
+      <img src="assets/img/Logo_Logistik.png" alt="Logo" style="width: 42px; height: 42px; object-fit: contain; flex-shrink: 0;">
+      
       <div class="brand-text" style="display: flex; flex-direction: column; justify-content: center;">
-        <div class="brand-name" style="font-weight: 700; color: #ffffff; font-size: 18px; letter-spacing: 0.5px; line-height: 1.2;">LogiTrackITG</div>
-        <div class="brand-sub" style="font-size: 9px; color: #94a3b8; font-weight: 600; letter-spacing: 1px; margin-top: 2px;">Sistem Pengiriman</div>
+        <div class="brand-name" style="font-weight: 700; color: #ffffff; font-size: 16px; letter-spacing: 0.5px; line-height: 1.2;">LogiTrackITG</div>
+        <div class="brand-sub" style="font-size: 9px; color: #94a3b8; font-weight: 600; letter-spacing: 1px; margin-top: 3px;">Sistem Pengiriman</div>
       </div>
     </a>
   </div>
@@ -33,9 +38,11 @@ $nav_items = [
            class="nav-item <?= (isset($page) && $page === $item['page']) ? 'active' : '' ?>">
           <span class="nav-icon"><?= $item['icon'] ?></span>
           <?= $item['label'] ?>
+          
           <?php if ($item['page'] === 'pengiriman'): ?>
-            <span class="nav-badge">3</span>
+            <span class="nav-badge"><?= $total_realtime_pengiriman ?></span>
           <?php endif; ?>
+          
         </a>
       <?php endif; ?>
     <?php endforeach; ?>
