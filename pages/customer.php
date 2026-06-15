@@ -1,5 +1,4 @@
 <?php
-// Proses form
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo) {
     if ($_POST['action'] === 'add') {
@@ -71,7 +70,6 @@ $customers = $pdo ? $pdo->query("SELECT * FROM customer ORDER BY tgl_daftar DESC
     foreach ($provinsi as $p) echo "<option value='$p'>$p</option>";
     ?>
   </select>
-  <button class="btn btn-secondary btn-sm" onclick="exportTable()">📥 Export</button>
 </div>
 
 <div class="card">
