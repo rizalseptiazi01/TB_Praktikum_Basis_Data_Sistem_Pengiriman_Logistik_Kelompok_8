@@ -12,7 +12,8 @@ Sistem informasi berbasis web dinamis untuk mempermudah manajemen manifest pengi
 * **Muhammad Saepul Hidayat** (NIM: 2406025)
 
 ## 🚀 Fitur Utama Aplikasi
-* **Dashboard Analytics:** Ringkasan total customer, total omset, serta grafik tren pengiriman bulanan.
+* **Dashboard Analytics:** Ringkasan total customer, total omset, serta grafik tren pengiriman bulanan
+![Dashboard] (assets/Logo_Logistik.jpg)
 * **Aktivitas Terbaru (Timeline):** Log otomatis transaksi manifest dan pendaftaran customer baru secara live.
 * **Tabel Pengiriman Terbaru:** Menampilkan 5 manifest pengiriman terakhir secara bersih dan terurut dari database.
 * **Status Penugasan Kurir:** Grafik pembagian tugas kurir (*Delivered* dan *In Transit*).
