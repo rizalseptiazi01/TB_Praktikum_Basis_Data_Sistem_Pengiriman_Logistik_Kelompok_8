@@ -11,7 +11,7 @@ Sistem informasi berbasis web dinamis untuk mempermudah manajemen manifest pengi
 * **Muhamad Rojaka**          (NIM: 2406027)
 * **Muhammad Saepul Hidayat** (NIM: 2406025)
 
-## 🚀 Fitur Utama Aplikasi
+## 🚀 Fitur Utama Sistem
 * **Dashboard Analytics:** Menampilkan total akumulasi data penting secara real-time (Total Customer, Total Pengiriman, Kurir Aktif, dan Total Pendapatan).
 * Tujuan : Menjadi halaman utama (pusat kendali) bagi Administrator untuk melihat ringkasan performa operasional logistik secara instan.
 <img width="1295" height="637" alt="Dashboard" src="https://github.com/user-attachments/assets/42e8d16a-afa5-4dfa-aee4-743932086120" />
