@@ -1,5 +1,5 @@
 <?php
-// === LOGIKA PHP: TAMBAH, UPDATE, & HAPUS PENUGASAN KURIR ===
+//TAMBAH, UPDATE, & HAPUS PENUGASAN KURIR
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($pdo) {
@@ -72,7 +72,6 @@ if ($pdo) {
             "SELECT pk.*, k.nama_kurir, k.kendaraan FROM penugasan_kurir pk LEFT JOIN kurir k ON pk.id_kurir=k.id_kurir ORDER BY pk.tgl_mulai_tugas DESC"
         )->fetchAll();
     } catch (PDOException $e) {
-        // Fallback data simulasi jika tabel belum terbuat
         $penugasan_list = [
             ['id_pengiriman'=>'PGM-0001','id_kurir'=>'KUR-001','nama_kurir'=>'Budi Kurniawan','urutan_kurir'=>1,'tgl_mulai_tugas'=>'2025-05-15 08:00:00','tgl_selesai_tugas'=>'2025-05-15 17:30:00','kota_asal_rute'=>'Jakarta','kota_tujuan_rute'=>'Surabaya','jarak_km'=>780,'biaya_kurir'=>250000,'status_tugas'=>'delivered','kendaraan'=>'Motor','catatan_tugas'=>''],
             ['id_pengiriman'=>'PGM-0002','id_kurir'=>'KUR-002','nama_kurir'=>'Dian Permana','urutan_kurir'=>1,'tgl_mulai_tugas'=>'2025-05-16 09:00:00','tgl_selesai_tugas'=>null,'kota_asal_rute'=>'Jakarta','kota_tujuan_rute'=>'Bandung','jarak_km'=>150,'biaya_kurir'=>85000,'status_tugas'=>'in_transit','kendaraan'=>'Motor','catatan_tugas'=>'']
