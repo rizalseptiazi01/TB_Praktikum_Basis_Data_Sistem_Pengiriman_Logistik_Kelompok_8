@@ -45,11 +45,13 @@ Sistem informasi berbasis web dinamis untuk mempermudah manajemen manifest pengi
 * **Laporan_Analitik:** Menyajikan ringkasan indikator kinerja utama seperti total transaksi bulanan, rata-rata biaya kirim, tingkat keberhasilan pengiriman, serta tabel rekap pendapatan bersih. Menu ini juga sudah dilengkapi dengan fitur Cetak Halaman yang terintegrasi langsung dengan fungsionalitas print browser.
 * Tujuan : Menyusun rangkuman data performa bisnis pengiriman dalam periode tertentu (bulanan/tahunan) untuk kebutuhan cetak dokumen fisik.
 <img width="1288" height="639" alt="Laporan" src="https://github.com/user-attachments/assets/a2bb2437-6f59-4a2f-bab4-3fe6a7ea4dc2" />
+<img width="1271" height="666" alt="Screenshot (385)" src="https://github.com/user-attachments/assets/0e013a92-bd3f-4d59-afa8-084247a5247e" />
 
 
 
 
-## 🛠️ Teknologi yang Digunakan
+
+## 🛠️ Tools yang Digunakan :
 * **Backend:** PHP 8.x (PDO MySQL Object Configuration)
 * **Frontend:** HTML5, CSS3, JavaScript
 * **Database:** MySQL
