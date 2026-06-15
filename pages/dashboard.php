@@ -1,5 +1,5 @@
 <?php
-// Ambil data dari database 
+// Ambil data dari database jika tersedia
 $total_customer    = $pdo ? $pdo->query("SELECT COUNT(*) FROM customer")->fetchColumn() : 248;
 $total_pengiriman  = $pdo ? $pdo->query("SELECT COUNT(*) FROM pengiriman")->fetchColumn() : 1532;
 $total_kurir       = $pdo ? $pdo->query("SELECT COUNT(*) FROM kurir WHERE status_kurir='aktif'")->fetchColumn() : 47;
@@ -52,7 +52,6 @@ $status_colors = [
     'Gagal'            => '#dc3545'                  
 ];
 
-// PERBAIKAN GRAFIK TREN serta Otomatis menghitung pengiriman nyata dari database
 $chart_data = [];
 if ($pdo) {
     try {
@@ -71,19 +70,9 @@ if ($pdo) {
         $chart_data = [];
     }
 }
-
-if (empty($chart_data)) {
-    $chart_data = [
-        ['bulan'=>'Jan','val'=>85],['bulan'=>'Feb','val'=>72],['bulan'=>'Mar','val'=>95],
-        ['bulan'=>'Apr','val'=>110],['bulan'=>'Mei','val'=>98],['bulan'=>'Jun','val'=>125],
-        ['bulan'=>'Jul','val'=>140],
-    ];
-}
-
-$max_val = max(array_column($chart_data, 'val'));
+// Mengambil nilai tertinggi untuk kalkulasi tinggi grafik batang
+$max_val = !empty($chart_data) ? max(array_column($chart_data, 'val')) : 1;
 if ($max_val == 0) $max_val = 1; 
-
-// Pengiriman terbaru 
 $pengiriman_terbaru = $pdo ? $pdo->query(
     "SELECT p.id_pengiriman, p.id_customer, p.tgl_pengiriman, p.total_biaya, p.kota_tujuan, c.nama_customer FROM pengiriman p 
      LEFT JOIN customer c ON p.id_customer=c.id_customer 
@@ -168,26 +157,33 @@ if ($pdo) {
     </div>
   </div>
   <div class="card-body">
-    <div class="bar-chart" style="display: flex; align-items: flex-end; justify-content: space-around; height: 180px; padding-top: 25px; gap: 10px;">
-      <?php foreach ($chart_data as $d): ?>
-        <?php 
-          // Menghitung tinggi persentase dari perbandingan data
-          $h = round(($d['val'] / $max_val) * 100); 
-        ?>
-        <div class="bar-item" style="display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end;">
-          
-          <span style="font-size: 11px; color: var(--blue-700, #1d4ed8); font-weight: 600; margin-bottom: 6px; display: block;">
-            <?= $d['val'] ?>
-          </span>
-          
-          <div class="bar" style="width: 100%; max-width: 32px; height: <?= $h ?>%; min-height: <?= $d['val'] > 0 ? '8px' : '2px' ?>; background: <?= $h == 100 ? 'var(--blue-500, #3b82f6)' : 'var(--blue-200, #bfdbfe)' ?>; border-radius: 4px 4px 0 0; transition: height 0.4s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);"></div>
-          
-          <span class="bar-label" style="font-size: 11.5px; color: var(--gray-500, #6b7280); margin-top: 8px; font-weight: 500; display: block;">
-            <?= $d['bulan'] ?>
-          </span>
-        </div>
-      <?php endforeach; ?>
-    </div>
+    <?php if (empty($chart_data)): ?>
+      <div style="text-align:center; padding: 40px 10px; color: var(--gray-400, #9ca3af); font-size: 13px;">
+        <div style="font-size: 32px; margin-bottom: 8px;">📊</div>
+        Belum ada data pengiriman pada tahun ini.
+      </div>
+    <?php else: ?>
+      <div class="bar-chart" style="display: flex; align-items: flex-end; justify-content: space-around; height: 180px; padding-top: 25px; gap: 10px;">
+        <?php foreach ($chart_data as $d): ?>
+          <?php 
+            // Menghitung tinggi persentase secara presisi murni dari perbandingan data
+            $h = round(($d['val'] / $max_val) * 100); 
+          ?>
+          <div class="bar-item" style="display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end;">
+            
+            <span style="font-size: 11px; color: var(--blue-700, #1d4ed8); font-weight: 600; margin-bottom: 6px; display: block;">
+              <?= $d['val'] ?>
+            </span>
+            
+            <div class="bar" style="width: 100%; max-width: 32px; height: <?= $h ?>%; min-height: <?= $d['val'] > 0 ? '8px' : '2px' ?>; background: <?= $h == 100 ? 'var(--blue-500, #3b82f6)' : 'var(--blue-200, #bfdbfe)' ?>; border-radius: 4px 4px 0 0; transition: height 0.4s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);"></div>
+            
+            <span class="bar-label" style="font-size: 11.5px; color: var(--gray-500, #6b7280); margin-top: 8px; font-weight: 500; display: block;">
+              <?= $d['bulan'] ?>
+            </span>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
 
@@ -207,7 +203,7 @@ if ($pdo) {
         <?php 
         $accumulated_percentage = 0; 
         foreach ($status_counts as $status_name => $count): 
-            if ($count === 0) continue; 
+            if ($count === 0) continue; // Abaikan status yang bernilai 0 agar tidak merusak lingkaran
             
             $percentage = ($count / $total_tugas_untuk_pembagian) * 100;
             $dash_array = sprintf("%.2f %.2f", $percentage, 100 - $percentage);
