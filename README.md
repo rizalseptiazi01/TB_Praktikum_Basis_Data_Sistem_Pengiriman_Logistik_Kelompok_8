@@ -13,7 +13,7 @@ Sistem informasi berbasis web dinamis untuk mempermudah manajemen manifest pengi
 
 ## 🚀 Fitur Utama Aplikasi
 * **Dashboard Analytics:** Ringkasan total customer, total omset, serta grafik tren pengiriman bulanan
-![Dashboard] (assets/Logo_Logistik.png)
+* ![Dashboard] (assets/css/Logo_Logistik.png)
 * **Aktivitas Terbaru (Timeline):** Log otomatis transaksi manifest dan pendaftaran customer baru secara live.
 * **Tabel Pengiriman Terbaru:** Menampilkan 5 manifest pengiriman terakhir secara bersih dan terurut dari database.
 * **Status Penugasan Kurir:** Grafik pembagian tugas kurir (*Delivered* dan *In Transit*).
