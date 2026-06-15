@@ -1,6 +1,6 @@
 <?php
 
-// === LOGIKA PHP: TAMBAH, UPDATE, & HAPUS BARANG ===
+// TAMBAH, UPDATE, & HAPUS BARANG
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($pdo) {
         try {
@@ -17,8 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     ':harga_standar' => !empty($_POST['harga_standar']) ? $_POST['harga_standar'] : 0,
                     ':deskripsi' => $_POST['deskripsi'] ?? null
                 ]);
-                
-                // PERBAIKAN: Diarahkan kembali tetap di page barang menggunakan JavaScript
                 echo "<script>window.location.href='index.php?page=barang';</script>";
                 exit;
 
@@ -39,16 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     ':harga_standar' => !empty($_POST['harga_standar']) ? $_POST['harga_standar'] : 0,
                     ':deskripsi' => $_POST['deskripsi'] ?? null
                 ]);
-                
-                // PERBAIKAN: Diarahkan kembali tetap di page barang menggunakan JavaScript
                 echo "<script>window.location.href='index.php?page=barang';</script>";
                 exit;
 
             } elseif ($_POST['action'] === 'delete' && isset($_POST['id'])) {
                 $stmt = $pdo->prepare("DELETE FROM barang WHERE id_barang = :id_barang");
                 $stmt->execute([':id_barang' => $_POST['id']]);
-                
-                // PERBAIKAN: Diarahkan kembali tetap di page barang menggunakan JavaScript
                 echo "<script>window.location.href='index.php?page=barang';</script>";
                 exit;
             }
