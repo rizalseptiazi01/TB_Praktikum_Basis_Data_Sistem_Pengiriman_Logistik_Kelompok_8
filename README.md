@@ -1,4 +1,4 @@
-# <img width="1024" height="1024" alt="Logo_Logistik" src="https://github.com/user-attachments/assets/95da0051-26de-42c9-9081-7ec8e8cb21aa" /> LogiTrackTG - Sistem Pengiriman Logistik (Kelompok 8)
+# <img width="1024" height="1024" alt="Logo_Logistik" src="https://github.com/user-attachments/assets/c38c87fb-b803-4c6e-ab28-2aea353ccbd2" /> LogiTrackTG - Sistem Pengiriman Logistik (Kelompok 8)
 Tugas Besar Praktikum Basis Data - Institut Teknologi Garut / Teknik Informatika A] 2026
 
 Sistem informasi berbasis web dinamis untuk mempermudah manajemen manifest pengiriman barang, pendataan customer, pelacakan kurir, serta rekapitulasi pendapatan logistik secara real-time.
