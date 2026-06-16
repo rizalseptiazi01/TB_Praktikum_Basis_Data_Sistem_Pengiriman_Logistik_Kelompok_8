@@ -1,11 +1,10 @@
 <?php
-// === LOGIKA PHP TRANS INDUK & DETAIL BARANG ===
 $msg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($pdo) {
         try {
-            // 1. TAMBAH PENGIRIMAN INDUK
+            // 1. TAMBAH PENGIRIMAN 
             if ($_POST['action'] === 'add') {
                 $stmt = $pdo->prepare("INSERT INTO pengiriman (id_pengiriman, id_customer, tgl_pengiriman, total_biaya, penerima_nama, penerima_telp, alamat_tujuan, kota_tujuan, provinsi_tujuan, catatan) 
                                        VALUES (:id_pengiriman, :id_customer, :tgl_pengiriman, :total_biaya, :penerima_nama, :penerima_telp, :alamat_tujuan, :kota_tujuan, :provinsi_tujuan, :catatan)");
@@ -23,10 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     ':provinsi_tujuan'  => !empty($_POST['provinsi_tujuan']) ? $_POST['provinsi_tujuan'] : null,
                     ':catatan'          => !empty($_POST['catatan']) ? $_POST['catatan'] : null
                 ]);
-                header("Location: index.php?page=pengiriman");
+                echo "<script>window.location.href='index.php?page=pengiriman';</script>";
                 exit;
 
-            // 2. UPDATE PENGIRIMAN INDUK
+            // 2. UPDATE PENGIRIMAN 
             } elseif ($_POST['action'] === 'update') {
                 $stmt = $pdo->prepare("UPDATE pengiriman SET 
                                        id_customer = :id_customer, 
@@ -52,17 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     ':provinsi_tujuan'  => !empty($_POST['provinsi_tujuan']) ? $_POST['provinsi_tujuan'] : null,
                     ':catatan'          => !empty($_POST['catatan']) ? $_POST['catatan'] : null
                 ]);
-                header("Location: index.php?page=pengiriman");
+                echo "<script>window.location.href='index.php?page=pengiriman';</script>";
                 exit;
 
-            // 3. HAPUS PENGIRIMAN INDUK
+            // 3. HAPUS PENGIRIMAN 
             } elseif ($_POST['action'] === 'delete' && isset($_POST['id'])) {
                 $delDetail = $pdo->prepare("DELETE FROM detail_pengiriman WHERE id_pengiriman = ?");
                 $delDetail->execute([$_POST['id']]);
 
                 $stmt = $pdo->prepare("DELETE FROM pengiriman WHERE id_pengiriman = :id_pengiriman");
                 $stmt->execute([':id_pengiriman' => $_POST['id']]);
-                header("Location: index.php?page=pengiriman");
+                echo "<script>window.location.href='index.php?page=pengiriman';</script>";
                 exit;
             }
             
@@ -89,8 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 
                 $stmtUpdateInduk = $pdo->prepare("UPDATE pengiriman SET total_biaya = (SELECT SUM(subtotal) FROM detail_pengiriman WHERE id_pengiriman = ?) WHERE id_pengiriman = ?");
                 $stmtUpdateInduk->execute([$id_pengiriman, $id_pengiriman]);
-
-                header("Location: index.php?page=pengiriman&open_detail=" . urlencode($id_pengiriman));
+                echo "<script>window.location.href='index.php?page=pengiriman&open_detail=" . urlencode($id_pengiriman) . "';</script>";
                 exit;
             } 
             
@@ -104,8 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 
                 $stmtUpdateInduk = $pdo->prepare("UPDATE pengiriman SET total_biaya = COALESCE((SELECT SUM(subtotal) FROM detail_pengiriman WHERE id_pengiriman = ?), 0) WHERE id_pengiriman = ?");
                 $stmtUpdateInduk->execute([$id_pengiriman, $id_pengiriman]);
-                
-                header("Location: index.php?page=pengiriman&open_detail=" . urlencode($id_pengiriman));
+                echo "<script>window.location.href='index.php?page=pengiriman&open_detail=" . urlencode($id_pengiriman) . "';</script>";
                 exit;
             }
 
@@ -123,7 +120,6 @@ $id_pgm_aktif = $_GET['open_detail'] ?? '';
 
 if ($pdo) {
     try {
-        // Query dibersihkan, tidak memanggil kolom status karena memang tidak ada di database
         $pengiriman_list = $pdo->query("SELECT p.*, c.nama_customer,
             COALESCE((SELECT SUM(jumlah_barang) FROM detail_pengiriman WHERE id_pengiriman = p.id_pengiriman), 0) AS total_barang,
             COALESCE((SELECT SUM(berat_barang) FROM detail_pengiriman WHERE id_pengiriman = p.id_pengiriman), 0) AS total_berat
@@ -133,7 +129,7 @@ if ($pdo) {
             
         $master_barang = $pdo->query("SELECT id_barang, nama_barang, harga_standar, berat_standar FROM barang ORDER BY nama_barang")->fetchAll();
 
-        // Ambil isi rincian barang spesifik via PHP jika parameter open_detail ada di URL
+        // Ambil isi rincian barang spesifik 
         if (!empty($id_pgm_aktif)) {
             $stmtDetail = $pdo->prepare("SELECT d.*, b.nama_barang FROM detail_pengiriman d JOIN barang b ON d.id_barang = b.id_barang WHERE d.id_pengiriman = ?");
             $stmtDetail->execute([$id_pgm_aktif]);
@@ -386,7 +382,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Fungsi filter diperbarui, tidak melakukan pencocokan variabel status lagi
 function filterPgm() {
   const q = document.getElementById('searchPgm').value.toLowerCase();
   const tgl = document.getElementById('filterTgl').value;
