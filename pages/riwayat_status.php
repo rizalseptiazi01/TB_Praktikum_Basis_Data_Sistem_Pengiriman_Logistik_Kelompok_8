@@ -1,10 +1,10 @@
 <?php
-// === 1. LOGIKA PHP: TAMBAH, UPDATE, & HAPUS RIWAYAT STATUS ===
+// TAMBAH, UPDATE, & HAPUS RIWAYAT STATUS 
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($pdo) {
         try {
-            // Aksi: Tambah Status Baru
+            // Tambah Status Baru
             if ($_POST['action'] === 'add') {
                 $stmt = $pdo->prepare("INSERT INTO riwayat_status (id_riwayat, id_pengiriman, id_status, tgl_status_berubah, lokasi_status, catatan_status) 
                                        VALUES (:id_riwayat, :id_pengiriman, :id_status, :tgl_status_berubah, :lokasi_status, :catatan_status)");
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 ]);
                 $msg = '<div class="alert alert-success">✅ Riwayat status pengiriman baru berhasil ditambahkan!</div>';
 
-            // Aksi: Perbarui / Edit Status Lama
+            // Perbarui / Edit Status Lama
             } elseif ($_POST['action'] === 'update') {
                 $stmt = $pdo->prepare("UPDATE riwayat_status SET 
                                        id_status = :id_status, 
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 ]);
                 $msg = '<div class="alert alert-success">✅ Data riwayat status berhasil diperbarui!</div>';
 
-            // Aksi: Hapus Baris Status
+            // Hapus Baris Status
             } elseif ($_POST['action'] === 'delete' && isset($_POST['id'])) {
                 $stmt = $pdo->prepare("DELETE FROM riwayat_status WHERE id_riwayat = :id_riwayat");
                 $stmt->execute([':id_riwayat' => $_POST['id']]);
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// === 2. AMBIL DATA DARI DATABASE ===
+// AMBIL DATA DARI DATABASE 
 $riwayat_list = [];
 if ($pdo) {
     try {
@@ -62,7 +62,6 @@ if ($pdo) {
              ORDER BY rs.tgl_status_berubah DESC"
         )->fetchAll();
     } catch (PDOException $e) {
-        // Fallback data simulasi jika koneksi atau tabel bermasalah
         $riwayat_list = [
             ['id_riwayat'=>'RWY-00001','id_pengiriman'=>'PGM-0001','id_status'=>'delivered','nama_status'=>'Terkirim','tgl_status_berubah'=>'2025-05-15 17:30:00','lokasi_status'=>'Surabaya','catatan_status'=>'Paket diterima oleh penerima'],
             ['id_riwayat'=>'RWY-00002','id_pengiriman'=>'PGM-0001','id_status'=>'in_transit','nama_status'=>'Dalam Perjalanan','tgl_status_berubah'=>'2025-05-15 10:00:00','lokasi_status'=>'Semarang','catatan_status'=>'Paket melewati kota transit Semarang']
@@ -265,7 +264,6 @@ $status_colors = ['Terkirim'=>'badge-green','Dalam Perjalanan'=>'badge-cyan','Pi
 </div>
 
 <script>
-// Passing data PHP ke array javascript untuk fitur lacak timeline
 const riwayatData = <?= json_encode($riwayat_list) ?>;
 
 function trackShipment() {
@@ -303,13 +301,9 @@ function openTambahRiwayatModal() {
   document.getElementById('modalTitleRiwayat').innerText = "🕐 Tambah Riwayat Status Baru";
   document.getElementById('formActionRiwayat').value = "add";
   document.getElementById('formRiwayat').reset();
-  
-  // Auto-generate ID Riwayat unik instan agar tidak capek mengetik manual
   document.getElementById('rwy_id_riwayat').value = 'RWY-' + Date.now().toString().slice(-6);
   document.getElementById('rwy_id_riwayat').readOnly = false;
   document.getElementById('rwy_id_riwayat').style.background = '#ffffff';
-  
-  // Set waktu otomatis ke jam sekarang di komputer
   const sekarang = new Date();
   sekarang.setMinutes(sekarang.getMinutes() - sekarang.getTimezoneOffset());
   document.getElementById('rwy_tgl').value = sekarang.toISOString().slice(0,16);
@@ -320,12 +314,9 @@ function openTambahRiwayatModal() {
 function bukaEditRiwayat(data) {
   document.getElementById('modalTitleRiwayat').innerText = "✏️ Edit Riwayat Status Paket";
   document.getElementById('formActionRiwayat').value = "update";
-  
-  // Kunci ID Riwayat karena merupakan Primary Key unik
   document.getElementById('rwy_id_riwayat').value = data.id_riwayat;
   document.getElementById('rwy_id_riwayat').readOnly = true;
   document.getElementById('rwy_id_riwayat').style.background = 'var(--blue-50)';
-  
   document.getElementById('rwy_id_pengiriman').value = data.id_pengiriman;
   document.getElementById('rwy_id_status').value = data.id_status ? data.id_status : data.nama_status;
   
