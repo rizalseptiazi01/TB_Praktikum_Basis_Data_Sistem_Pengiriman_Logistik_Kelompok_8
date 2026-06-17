@@ -7,32 +7,39 @@ if (!function_exists('rupiah')) {
 
 // Menentukan rentang bulan ini untuk query (default tahun berjalan)
 $tahun_ini = date('Y');
-$bulan_ini = date('m');
+// Menangkap bulan secara dinamis dari filter
+$bulan_ini = isset($_GET['filter_bulan']) ? $_GET['filter_bulan'] : date('m');
 
 $total_pengiriman_bulan = $pdo ? $pdo->query(
     "SELECT COUNT(*) FROM pengiriman WHERE MONTH(tgl_pengiriman) = '$bulan_ini' AND YEAR(tgl_pengiriman) = '$tahun_ini'"
-)->fetchColumn() : 412;
+)->fetchColumn() : 0; 
 
 // Pengiriman sukses & gagal dibaca lewat JOIN tabel penugasan_kurir
 $pengiriman_sukses = $pdo ? $pdo->query(
     "SELECT COUNT(DISTINCT p.id_pengiriman) FROM pengiriman p 
      JOIN penugasan_kurir pk ON p.id_pengiriman = pk.id_pengiriman 
-     WHERE pk.status_tugas = 'delivered' AND MONTH(p.tgl_pengiriman) = '$bulan_ini'"
-)->fetchColumn() : 378;
+     WHERE pk.status_tugas = 'delivered' AND MONTH(p.tgl_pengiriman) = '$bulan_ini' AND YEAR(p.tgl_pengiriman) = '$tahun_ini'"
+)->fetchColumn() : 0; // KITA UBAH JADI 0 JIKA DB KOSONG
 
 $pengiriman_gagal = $pdo ? $pdo->query(
     "SELECT COUNT(DISTINCT p.id_pengiriman) FROM pengiriman p 
      JOIN penugasan_kurir pk ON p.id_pengiriman = pk.id_pengiriman 
-     WHERE pk.status_tugas = 'failed' AND MONTH(p.tgl_pengiriman) = '$bulan_ini'"
-)->fetchColumn() : 14;
-
-// Kalkulasi Success Rate
-$success_rate = $total_pengiriman_bulan > 0 ? round(($pengiriman_sukses / $total_pengiriman_bulan) * 100, 1) : 91.7;
+     WHERE pk.status_tugas = 'failed' AND MONTH(p.tgl_pengiriman) = '$bulan_ini' AND YEAR(p.tgl_pengiriman) = '$tahun_ini'"
+)->fetchColumn() : 0; 
+$success_rate = $total_pengiriman_bulan > 0 ? round(($pengiriman_sukses / $total_pengiriman_bulan) * 100, 1) : 0;
 
 // Rata-rata biaya kirim
-$rata_biaya = $pdo ? $pdo->query(
-    "SELECT AVG(total_biaya) FROM pengiriman WHERE MONTH(tgl_pengiriman) = '$bulan_ini'"
-)->fetchColumn() : 125000;
+if ($pdo) {
+    $biaya_query = $pdo->query(
+        "SELECT SUM(total_biaya) as total_duit, COUNT(*) as total_kirim 
+         FROM pengiriman 
+         WHERE MONTH(tgl_pengiriman) = '$bulan_ini' AND YEAR(tgl_pengiriman) = '$tahun_ini'"
+    )->fetch();
+    
+    $rata_biaya = $biaya_query['total_kirim'] > 0 ? ($biaya_query['total_duit'] / $biaya_query['total_kirim']) : 0;
+} else {
+    $rata_biaya = 0;
+}
 
 
 if ($pdo) {
@@ -81,7 +88,7 @@ if ($pdo) {
         $kota_top[] = [
             'kota' => $qk['kota_tujuan'],
             'count' => $qk['jumlah'],
-            'pct' => $total_all_kirim > 0 ? round(($qk['jumlah'] / $total_all_kirim) * 100) : 20
+            'pct' => $total_all_kirim > 0 ? round(($qk['jumlah'] / $total_all_kirim) * 100) : 0
         ];
     }
 } else {
@@ -101,12 +108,22 @@ if ($pdo) {
     <div class="page-subtitle">Ringkasan performa sistem pengiriman real-time</div>
   </div>
   <div style="display:flex;gap:10px">
-    <select class="filter-select">
-      <option><?= date('F Y') ?></option>
-      <option><?= date('F Y', strtotime('-1 month')) ?></option>
-    </select>
+    
+    <form method="GET" action="index.php" style="margin:0; display:flex;">
+      <input type="hidden" name="page" value="laporan">
+      <select name="filter_bulan" class="filter-select" onchange="this.form.submit()" style="cursor:pointer;">
+        <?php 
+        for ($m = 1; $m <= 12; $m++) {
+            $value_bulan = str_pad($m, 2, '0', STR_PAD_LEFT);
+            $nama_bulan_panjang = date('F Y', mktime(0, 0, 0, $m, 1, $tahun_ini));
+            $selected = ($value_bulan == $bulan_ini) ? 'selected' : '';
+            echo "<option value='{$value_bulan}' {$selected}>{$nama_bulan_panjang}</option>";
+        }
+        ?>
+      </select>
+    </form>
+
     <button class="btn btn-secondary" onclick="window.print()">📥 Cetak Halaman</button>
-    <button class="btn btn-primary" onclick="alert('Fitur Export Excel Data Riil Sedang Diproses!')">📊 Export Excel</button>
   </div>
 </div>
 
@@ -116,7 +133,7 @@ if ($pdo) {
     <div class="stat-info">
       <div class="stat-value"><?= number_format($total_pengiriman_bulan) ?></div>
       <div class="stat-label">Total Pengiriman (Bulan Ini)</div>
-      <div class="stat-change up">▲ Berdasarkan DB</div>
+      <div class="stat-change up">▲ Berdasarkan Pengiriman</div>
     </div>
   </div>
   <div class="stat-card green">
@@ -140,7 +157,7 @@ if ($pdo) {
     <div class="stat-info">
       <div class="stat-value"><?= $pengiriman_gagal ?></div>
       <div class="stat-label">Pengiriman Gagal</div>
-      <div class="stat-change up">⚠️ Butuh Penanganan</div>
+      <div class="stat-change up"></div>
     </div>
   </div>
 </div>
@@ -212,3 +229,42 @@ if ($pdo) {
     </div>
   </div>
 </div>
+
+<style>
+@media print {
+  /* 1. Sembunyikan Topbar dan Sidebar saat dicetak */
+  .topbar, 
+  #topbar, 
+  .sidebar, 
+  #sidebar {
+    display: none !important;
+  }
+
+  /* 2. Sembunyikan elemen tombol cetak dan form filter dropdown */
+  .btn, 
+  .btn-secondary, 
+  .filter-select, 
+  form {
+    display: none !important;
+  }
+
+  /* 3. Paksa area konten utama bergeser penuh ke kiri (margin 0) agar tidak kepotong */
+  .main-content, 
+  .main, 
+  #main-wrapper,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* 4. Opsional: Optimasi bayangan card agar warnanya solid & hemat tinta printer */
+  .card, .stat-card {
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    page-break-inside: avoid; /* Mencegah card kepotong di tengah halaman */
+  }
+}
+</style>
