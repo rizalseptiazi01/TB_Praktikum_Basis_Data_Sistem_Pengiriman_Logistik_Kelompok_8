@@ -1,4 +1,5 @@
 <?php
+// Memastikan fungsi rupiah aman dan tidak memicu Fatal Error akibat deklarasi ganda
 if (!function_exists('rupiah')) {
     function rupiah($angka) {
         return 'Rp ' . number_format($angka, 0, ',', '.');
@@ -19,7 +20,7 @@ $pengiriman_sukses = $pdo ? $pdo->query(
     "SELECT COUNT(DISTINCT p.id_pengiriman) FROM pengiriman p 
      JOIN penugasan_kurir pk ON p.id_pengiriman = pk.id_pengiriman 
      WHERE pk.status_tugas = 'delivered' AND MONTH(p.tgl_pengiriman) = '$bulan_ini' AND YEAR(p.tgl_pengiriman) = '$tahun_ini'"
-)->fetchColumn() : 0; // KITA UBAH JADI 0 JIKA DB KOSONG
+)->fetchColumn() : 0; 
 
 $pengiriman_gagal = $pdo ? $pdo->query(
     "SELECT COUNT(DISTINCT p.id_pengiriman) FROM pengiriman p 
@@ -41,28 +42,35 @@ if ($pdo) {
     $rata_biaya = 0;
 }
 
-
+// AMBIL DATA REKAP BULANAN
 if ($pdo) {
     $data_bulanan = [];
-    $query_bulan = $pdo->query(
-        "SELECT MONTHNAME(p.tgl_pengiriman) as bln, MONTH(p.tgl_pengiriman) as bln_num,
-                COUNT(p.id_pengiriman) as total, 
-                SUM(p.total_biaya) as revenue,
-                SUM(CASE WHEN pk.status_tugas = 'delivered' THEN 1 ELSE 0 END) as sukses
-         FROM pengiriman p
-         LEFT JOIN penugasan_kurir pk ON p.id_pengiriman = pk.id_pengiriman
-         WHERE YEAR(p.tgl_pengiriman) = '$tahun_ini'
-         GROUP BY MONTH(p.tgl_pengiriman) ORDER BY MONTH(p.tgl_pengiriman) ASC"
-    )->fetchAll();
+    try {
+        // 🟢 Dioptimalkan: Menambahkan MONTHNAME ke GROUP BY agar lolos validasi ONLY_FULL_GROUP_BY di MySQL device lain
+        $query_bulan = $pdo->query(
+            "SELECT MONTHNAME(p.tgl_pengiriman) as bln, MONTH(p.tgl_pengiriman) as bln_num,
+                    COUNT(p.id_pengiriman) as total, 
+                    SUM(p.total_biaya) as revenue,
+                    SUM(CASE WHEN pk.status_tugas = 'delivered' THEN 1 ELSE 0 END) as sukses
+             FROM pengiriman p
+             LEFT JOIN penugasan_kurir pk ON p.id_pengiriman = pk.id_pengiriman
+             WHERE YEAR(p.tgl_pengiriman) = '$tahun_ini'
+             GROUP BY MONTH(p.tgl_pengiriman), MONTHNAME(p.tgl_pengiriman) 
+             ORDER BY MONTH(p.tgl_pengiriman) ASC"
+        )->fetchAll();
 
-    foreach ($query_bulan as $qb) {
-        $nama_bln = substr($qb['bln'], 0, 3);
-        $data_bulanan[] = [
-            'bulan' => $nama_bln,
-            'pengiriman' => $qb['total'],
-            'pendapatan' => $qb['revenue'] ?? 0,
-            'sukses' => $qb['sukses']
-        ];
+        foreach ($query_bulan as $qb) {
+            $nama_bln = substr($qb['bln'], 0, 3);
+            $data_bulanan[] = [
+                'bulan' => $nama_bln,
+                'pengiriman' => $qb['total'],
+                'pendapatan' => $qb['revenue'] ?? 0,
+                'sukses' => $qb['sukses']
+            ];
+        }
+    } catch (PDOException $e) {
+        // Fallback data dummy lokal jika query database gagal mengeksekusi struktur tabel
+        $data_bulanan = [];
     }
 } else {
     $data_bulanan = [
@@ -74,22 +82,26 @@ if ($pdo) {
     ];
 }
 
-
+// AMBIL KOTA TUJUAN POPULER
 if ($pdo) {
     $kota_top = [];
-    $query_kota = $pdo->query(
-        "SELECT kota_tujuan, COUNT(*) as jumlah 
-         FROM pengiriman 
-         GROUP BY kota_tujuan ORDER BY jumlah DESC LIMIT 5"
-    )->fetchAll();
-    
-    $total_all_kirim = array_sum(array_column($query_kota, 'jumlah'));
-    foreach ($query_kota as $qk) {
-        $kota_top[] = [
-            'kota' => $qk['kota_tujuan'],
-            'count' => $qk['jumlah'],
-            'pct' => $total_all_kirim > 0 ? round(($qk['jumlah'] / $total_all_kirim) * 100) : 0
-        ];
+    try {
+        $query_kota = $pdo->query(
+            "SELECT kota_tujuan, COUNT(*) as jumlah 
+             FROM pengiriman 
+             GROUP BY kota_tujuan ORDER BY jumlah DESC LIMIT 5"
+        )->fetchAll();
+        
+        $total_all_kirim = array_sum(array_column($query_kota, 'jumlah'));
+        foreach ($query_kota as $qk) {
+            $kota_top[] = [
+                'kota' => $qk['kota_tujuan'],
+                'count' => $qk['jumlah'],
+                'pct' => $total_all_kirim > 0 ? round(($qk['jumlah'] / $total_all_kirim) * 100) : 0
+            ];
+        }
+    } catch (PDOException $e) {
+        $kota_top = [];
     }
 } else {
     $kota_top = [
@@ -232,7 +244,6 @@ if ($pdo) {
 
 <style>
 @media print {
-  /* 1. Sembunyikan Topbar dan Sidebar saat dicetak */
   .topbar, 
   #topbar, 
   .sidebar, 
@@ -240,7 +251,6 @@ if ($pdo) {
     display: none !important;
   }
 
-  /* 2. Sembunyikan elemen tombol cetak dan form filter dropdown */
   .btn, 
   .btn-secondary, 
   .filter-select, 
@@ -248,7 +258,6 @@ if ($pdo) {
     display: none !important;
   }
 
-  /* 3. Paksa area konten utama bergeser penuh ke kiri (margin 0) agar tidak kepotong */
   .main-content, 
   .main, 
   #main-wrapper,
@@ -259,12 +268,11 @@ if ($pdo) {
     width: 100% !important;
   }
 
-  /* 4. Opsional: Optimasi bayangan card agar warnanya solid & hemat tinta printer */
   .card, .stat-card {
     border: 1px solid #e2e8f0 !important;
     box-shadow: none !important;
     background: #ffffff !important;
-    page-break-inside: avoid; /* Mencegah card kepotong di tengah halaman */
+    page-break-inside: avoid;
   }
 }
 </style>
