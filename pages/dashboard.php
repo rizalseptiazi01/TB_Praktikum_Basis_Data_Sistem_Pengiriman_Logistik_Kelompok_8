@@ -3,6 +3,8 @@
 $total_customer    = $pdo ? $pdo->query("SELECT COUNT(*) FROM customer")->fetchColumn() : 248;
 $total_pengiriman  = $pdo ? $pdo->query("SELECT COUNT(*) FROM pengiriman")->fetchColumn() : 1532;
 $total_kurir       = $pdo ? $pdo->query("SELECT COUNT(*) FROM kurir WHERE status_kurir='aktif'")->fetchColumn() : 47;
+// Sudah dinamis: Mengambil jumlah kurir yang berstatus 'cuti' dari database
+$total_kurir_cuti  = $pdo ? $pdo->query("SELECT COUNT(*) FROM kurir WHERE status_kurir='cuti'")->fetchColumn() : 2; 
 $total_pendapatan  = $pdo ? $pdo->query("SELECT SUM(total_biaya) FROM pengiriman")->fetchColumn() : 384750000;
 
 // Ambil Semua Status Penugasan 
@@ -136,7 +138,7 @@ if ($pdo) {
     <div class="stat-info">
       <div class="stat-value"><?= number_format($total_kurir) ?></div>
       <div class="stat-label">Kurir Aktif</div>
-      <div class="stat-change down">▼ 2 kurir cuti</div>
+      <div class="stat-change down">▼ <?= number_format($total_kurir_cuti) ?> kurir cuti</div>
     </div>
   </div>
   <div class="stat-card cyan">
